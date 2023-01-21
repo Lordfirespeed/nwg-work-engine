@@ -2,6 +2,7 @@ from network import RandomWaterDistributionNetwork
 from networkx import adjacency_matrix
 from datetime import datetime
 from meteostat import Point, Hourly
+from math import sin, cos
 import numpy
 import random
 
@@ -20,6 +21,9 @@ class Edge(Material):
   
 class network(RandomWaterDistributionNetwork):
   pass
+
+def pressure_gen(t):
+  return (10 * (0.0572 * cos(4.667 * t) + 0.0218 * cos(12.22*t)) + 1)
 
 def generateBaseTemps():
   durhamLocation = Point(54.77676, -1.57566, 77)
@@ -67,12 +71,22 @@ def makeGraphAndTemps(numNodes):
   coldestList, differencesList = generateBaseTemps()
   coldestList = numpy.array(coldestList)
   differencesList = numpy.array(differencesList)
-  listOfLists = numpy.ndarray((14, numEdges, 2))
+  listOfLists = numpy.ndarray((numEdges, 14, 3))
   for i in range(numEdges):
     newColdestList = coldestList + numpy.random.normal(0, 0.5, 14)
     newDifferencesList = differencesList + numpy.random.normal(0, 0.5, 14)
-    listOfLists[:,i,0] = newColdestList
-    listOfLists[:,i,1] = newDifferencesList
+    listOfLists[i,:,0] = (-2 - newColdestList)/(-2)
+    listOfLists[i,:,1] = newDifferencesList
+    offset = random.randint(0,10)
+    increase = numpy.random.normal(0, 0.5)
+    pressures = numpy.empty(14)
+    for j in range(14):
+      pressures[j] = pressure_gen(j * increase + offset)
+    if random.random() > 0.3:
+      listOfLists[i,:,2] = (1.5 - pressures)/1.5
+    else:
+      listOfLists[i,:,2] = (1.45 - pressures)/1.45
+
   return Amatrix, listOfLists
     
-print(makeGraphAndTemps(10))
+print(makeGraphAndTemps(4))
