@@ -5,6 +5,7 @@ from meteostat import Point, Hourly
 import numpy
 import random
 
+
 #define classes of material, edge and node for the graph
 class Material:
   def __init__(self,pressureTol, tempTol) -> None:
