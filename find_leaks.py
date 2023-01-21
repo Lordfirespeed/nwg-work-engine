@@ -1,4 +1,3 @@
-from network import RandomWaterDistributionNetwork
 from dataclasses import dataclass
 import logging
 import networkx
@@ -9,10 +8,14 @@ from typing import Optional
 class Leak:
     network: networkx.DiGraph
     from_node: int
-    flow_loss_coefficient: float
+    flow_loss: int
 
     def potential_leak_edges(self) -> list[tuple[int, int], ...]:
         return [(self.from_node, neighbor) for neighbor in self.network.adj[self.from_node]]
+
+    @property
+    def flow_loss_coefficient(self):
+        return self.flow_loss / self.network.nodes[self.from_node]["flow_rate"]
 
 
 class LeakFinder:
@@ -28,7 +31,7 @@ class LeakFinder:
                 continue
 
             to_consider += neighbors
-            loss = self.get_loss_coefficient(network, currently_considering)
+            loss = self.get_flow_loss(network, currently_considering)
 
             if loss is None:
                 continue
@@ -37,12 +40,18 @@ class LeakFinder:
 
         return leaks
 
-    def get_loss_coefficient(self, network: networkx.DiGraph, node: int) -> Optional[float]:
-        """Return None if flow is retained, return a loss coefficient otherwise."""
-        expected_flow_out = network.nodes[node]["flow_rate"]
+    @staticmethod
+    def get_flow_at(network: networkx.DiGraph, node: int) -> int:
+        return network.nodes[node]["flow_rate"]
+
+    def get_flow_out_total(self, network: networkx.DiGraph, node: int) -> int:
+        return sum([self.get_flow_at(network, neighbor) for neighbor in list(network.adj[node])])
+
+    def get_flow_loss(self, network: networkx.DiGraph, node: int) -> Optional[int]:
+        """Return None if flow is retained, return a total flow loss otherwise."""
+        expected_flow_out = self.get_flow_at(network, node)
         logging.debug(f"Expected flow out of {node} is {expected_flow_out}")
-        neighbor_flows = [network.nodes[neighbor]["flow_rate"] for neighbor in list(network.adj[node])]
-        actual_flow_out = sum(neighbor_flows)
+        actual_flow_out = self.get_flow_out_total(network, node)
         logging.debug(f"Actual flow total out of {node} is {actual_flow_out}")
 
         if actual_flow_out > expected_flow_out:
@@ -51,14 +60,4 @@ class LeakFinder:
         if actual_flow_out == expected_flow_out:
             return
 
-        return (expected_flow_out - actual_flow_out) / expected_flow_out
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    random_network_maker = RandomWaterDistributionNetwork()
-    graph = random_network_maker.random_network(30, 1000, 3)
-    leak_finder = LeakFinder()
-    leaks = leak_finder.find_leaks(graph)
-    print(leaks)
-    print(len(leaks))
+        return expected_flow_out - actual_flow_out
