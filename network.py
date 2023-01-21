@@ -48,9 +48,10 @@ class RandomWaterDistributionNetwork:
         network.nodes[node_at_end_of_edge]["flow_rate"] = int(network.nodes[node_at_end_of_edge]["flow_rate"] * flow_coefficient)
         self.assign_flows_to_nodes(network, node_at_end_of_edge)
 
-    def add_leaks_to_network(self, network: networkx.DiGraph, num_leaks: int) -> None:
+    def add_leaks_to_network(self, network: networkx.DiGraph, num_leaks: int) -> list[tuple[int, int], ...]:
         edges_to_add_leaks_to = random_sample(list(network.edges), num_leaks)
         [self.add_leak_to_network(network, edge) for edge in edges_to_add_leaks_to]
+        return edges_to_add_leaks_to
 
     def random_network(self, number_of_nodes: int, initial_flow: int, number_of_leaks: int) -> networkx.DiGraph:
         graph = self.random_graph_with_one_source(number_of_nodes)
