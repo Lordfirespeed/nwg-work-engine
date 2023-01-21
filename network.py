@@ -5,7 +5,7 @@ import logging
 
 
 class RandomWaterDistributionNetwork:
-    leak_flow_reduction_range = (0.01, 0.1)
+    leak_flow_reduction_range = (0.03, 0.2)
     redirection_probability = 0.1
 
     @classmethod
