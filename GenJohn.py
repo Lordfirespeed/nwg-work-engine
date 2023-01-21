@@ -74,14 +74,17 @@ def makeGraphAndTemps(numNodes):
   for i in range(numEdges):
     newColdestList = coldestList + numpy.random.normal(0, 0.5, 14)
     newDifferencesList = differencesList + numpy.random.normal(0, 0.5, 14)
-    listOfLists[i,:,0] = newColdestList
+    listOfLists[i,:,0] = (-2 - newColdestList)/(-2)
     listOfLists[i,:,1] = newDifferencesList
     offset = random.randint(0,10)
     increase = numpy.random.normal(0, 0.5)
     pressures = numpy.empty(14)
     for j in range(14):
       pressures[j] = pressure_gen(j * increase + offset)
-    listOfLists[i,:,2] = pressures
+    if random.random() > 0.3:
+      listOfLists[i,:,2] = (1.6 - pressures)/1.6
+    else:
+      listOfLists[i,:,2] = (1.5 - pressures)/1.5
 
   return Amatrix, listOfLists
     
