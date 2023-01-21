@@ -6,7 +6,7 @@ class Pipe:  # Edge
         self.uuid = random_uuid()
 
     def __hash__(self) -> int:
-        return hash(self.uuid)
+        return self.uuid.int
 
 
 class Junction:   # Node
@@ -14,4 +14,4 @@ class Junction:   # Node
         self.uuid = random_uuid()
 
     def __hash__(self) -> int:
-        return hash(self.uuid)
+        return self.uuid.int
