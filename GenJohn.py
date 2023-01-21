@@ -82,9 +82,9 @@ def makeGraphAndTemps(numNodes):
     for j in range(14):
       pressures[j] = pressure_gen(j * increase + offset)
     if random.random() > 0.3:
-      listOfLists[i,:,2] = (1.6 - pressures)/1.6
-    else:
       listOfLists[i,:,2] = (1.5 - pressures)/1.5
+    else:
+      listOfLists[i,:,2] = (1.45 - pressures)/1.45
 
   return Amatrix, listOfLists
     
