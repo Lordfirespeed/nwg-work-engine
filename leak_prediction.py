@@ -14,52 +14,49 @@ Take average pressure and minimum temperature
 2. Use projected data in logistic regression to find 
 '''
 
-import matplotlib.pyplot as plt
-import numpy as np
-import random_network_properties as gj
+import numpy
+from random_network import RandomWaterDistributionNetwork
+from random_network_properties import random_properties_for_network
 from sklearn import linear_model
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
 
 
-def nearity (nodes):
-   for i in range (0, nodes):
-      aMatrix, listOfLists = gj.makeGraphAndTemps(nodes)
-      # print("AMatrix", aMatrix)
-      # print("ListOfLists:", listOfLists) # Coldest temp recorded, largest difference in temp, average pressure (per 12 hours). Each represents
-      # listOflists contains data example as a matrix for each edge
+class LeakPredictor:
+    def __init__(self, adjacency_matrix: numpy.ndarray, pipe_properties_over_time: numpy.ndarray) -> None:
+        self.adjacency = adjacency_matrix
+        self.pipe_properties_over_time = pipe_properties_over_time
 
-      # defining feature matrix(X) and response vector(y)
-      coldestTemps = listOfLists[0, : , 0]
-      averagePressures = listOfLists[0, : , 2]
-      X = np.column_stack((coldestTemps, averagePressures))
-      y = listOfLists[0, : , 1]
+    def temperature_change_to_break(self, edge_index: int):
+        # defining feature matrix(X) and response vector(y)
+        coldestTemps = self.pipe_properties_over_time[edge_index, :, 0]
+        averagePressures = self.pipe_properties_over_time[edge_index, :, 2]
+        X = numpy.column_stack((coldestTemps, averagePressures))
+        y = self.pipe_properties_over_time[edge_index, :, 1]
 
-      #Splitting X and y into training and testing sets
+        # create linear regression object
+        reg = linear_model.LinearRegression()
 
-      #create linear regression object
-      reg = linear_model.LinearRegression()
+        # train model using training sets
+        reg.fit(X, y)
 
-      #train model using training sets
-      reg.fit(X, y)
+        # regression coefficients
+        # print('Coefficients', reg.coef_)
 
-      #regression coefficients
-      #print('Coefficients', reg.coef_)
+        # y-intercept
+        return reg.intercept_
 
-      #plot for residual error
-      ## set plot style
-      plt.style.use('fivethirtyeight')
-
-      ##plotting residual errors in training data
-      #plt.scatter(reg.predict(X_train), reg.predict(X_train) - y_train, color='blue', label='Test data', linewidth=3)
-
-      ##plotting line for zero residual error
-      #plt.hlines(y=0, xmin=0, xmax=50, linewidth=2)
-
-      ## y-intercept
-      print('y-intercept for node', i, "is", reg.intercept_)
+    def rank_pipes_by_break_nearity(self):
+        pipes = [(index, self.temperature_change_to_break(index)) for index in range(self.pipe_properties_over_time.shape[0])]
+        ranked_pipes = sorted(pipes, key=lambda pipe: pipe[1], reverse=True)
+        return ranked_pipes
 
 
-nearity(10)
+if __name__ == "__main__":
+    random_network_maker = RandomWaterDistributionNetwork()
+    network = random_network_maker.random_network(10, 0, 0)
+    adjacency, pipe_props = random_properties_for_network(network)
+
+    predictor = LeakPredictor(adjacency, pipe_props)
+    results = predictor.rank_pipes_by_break_nearity()
+    print(results)
+
+
