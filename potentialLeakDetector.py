@@ -16,7 +16,7 @@ Take average pressure and minimum temperature
 
 import matplotlib.pyplot as plt
 import numpy as np
-import GenJohn as gj
+import random_network_properties as gj
 from sklearn import linear_model
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
