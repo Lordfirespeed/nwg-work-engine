@@ -12,9 +12,23 @@ def create_leak_row(leak: Leak) -> str:
     """
 
 
+def create_prediction_row(prediction: tuple[tuple[int, int], float]) -> str:
+    if round(prediction[1], 2) == 0:
+        return ""
+
+    return f"""
+    <tr class="warning">
+        <td width="40%">Could potentially leak on temperature change more extreme than {round(prediction[1], 2)} degrees Celcius</td>
+        <td>Pipe {prediction[0]}</td>
+        <td>Medium</td>
+    </tr>
+    """
+
+
 def display_work_todo(leaks: [Leak], predictions) -> None:
 
     leak_rows = "\n".join([create_leak_row(leak) for leak in leaks])
+    prediction_rows = "\n".join([create_prediction_row(prediction) for prediction in predictions[:5]])
 
     display(HTML(
         f"""
@@ -35,6 +49,7 @@ def display_work_todo(leaks: [Leak], predictions) -> None:
                     </thead>
                     <tbody>
                         {leak_rows}
+                        {prediction_rows}
                     </tbody>
                 </table>
             </body>
