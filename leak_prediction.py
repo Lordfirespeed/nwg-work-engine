@@ -11,7 +11,7 @@ Output predictions for pressure and temperature of the system for each day of th
 Take average pressure and minimum temperature
 
 1. Use linear regression to find projection of data
-2. Use projected data in logistic regression to find 
+2. Use projected data in linear regression to find
 '''
 
 import numpy
