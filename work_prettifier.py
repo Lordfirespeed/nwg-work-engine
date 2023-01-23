@@ -1,4 +1,4 @@
-from find_leaks import Leak
+from leak_detection import Leak
 from IPython.display import display, HTML
 
 
