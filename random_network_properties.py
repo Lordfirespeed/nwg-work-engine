@@ -1,6 +1,6 @@
 import networkx
 from networkx import to_numpy_array
-from datetime import datetime
+from datetime import datetime, timedelta
 from meteostat import Point, Hourly
 from math import sin, cos
 import numpy
@@ -38,7 +38,7 @@ def generateBaseTemps():
     differencesList = []
     for i in range(7):
         start = datetime(startYear, startMonth, startDay + i)
-        end = datetime(startYear, startMonth, startDay + i + 1)
+        end = start + timedelta(days=1)
         weatherData = Hourly(durhamLocation, start, end)
         tempsFrame = weatherData.fetch()
         tempsFrame.drop(tempsFrame.columns[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]], axis=1, inplace=True)
